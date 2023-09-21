@@ -1,0 +1,10 @@
+# for developing
+autopep8==2.0.2
+flake8==6.0.0
+
+# for system
+Django==4.2.3
+
+# for test
+pytest==7.4.0
+pytest-django==4.5.2

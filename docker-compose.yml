@@ -1,0 +1,22 @@
+# this file contains our base configuration.
+version: '3'
+
+services:
+  djano-app:
+    tty: true
+    build:
+      # context: .
+      dockerfile: ./Dockerfile
+    command: >
+      sh -c '
+        python genovese/manage.py makemigrations
+        python genovese/manage.py migrate
+        python genovese/manage.py runserver 0.0.0.0:8000
+      '
+    volumes:
+      - .:/code
+    ports:
+      # host port : container port
+      - 8000:8000
+
+    container_name: "django-container"

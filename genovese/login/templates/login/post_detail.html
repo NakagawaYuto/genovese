@@ -1,0 +1,21 @@
+{% extends "login/base.html" %} {% block content %}
+
+<h2>{{post.title}}</h2>
+<p>posted at {{post.posted_date}}</p>
+<p>{{post.intro}}</p>
+<p>{{post.body}}</p>
+
+<!-- コメント投稿エリア -->
+<h2 class="subtitle">コメントを追加</h2>
+<form action="." method="post">
+  {% csrf_token %}
+
+  <button class=""button is-danger>送信</button>
+
+</form>
+
+
+<a href="/login">戻る</a>
+
+
+{% endblock %}

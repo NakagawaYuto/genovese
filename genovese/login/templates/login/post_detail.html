@@ -5,11 +5,27 @@
 <p>{{post.intro}}</p>
 <p>{{post.body}}</p>
 
+<!-- コメントされたものを表示 -->
+<hr>
+<h2>コメント</h2>
+{% for comment in post.comments.all %}
+<p>
+  <strong>
+    {{comment.name}}
+    <small>{{comment.posted_date}}</small>
+    <small>{{comment.body}}</small>
+  </strong>
+</p>
+
+{% empty %}
+<p>コメントはまだありません</p>
+{% endfor %}
+<hr>
 <!-- コメント投稿エリア -->
 <h2 class="subtitle">コメントを追加</h2>
 <form action="." method="post">
   {% csrf_token %}
-
+  {{form.as_p}}
   <button class=""button is-danger>送信</button>
 
 </form>

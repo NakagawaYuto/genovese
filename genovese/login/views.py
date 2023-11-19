@@ -1,7 +1,7 @@
-from http.client import HTTPResponse
 from django.shortcuts import render, redirect
-
-from login.forms import CommentForm
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.views import(LoginView, LogoutView)
+from login.forms import CommentForm, LoginForm
 from .models import Post
 # Create your views here.
 def frontpage(request):
@@ -20,7 +20,18 @@ def post_detail(request, slug):
       comment.post = post
       comment.save()
 
-      return redirect("post_detail", slug=post.slug)
+      return redirect("login:post_detail", slug=post.slug)
   else:
     form = CommentForm()
   return render(request, "login/post_detail.html", {"post": post, "form": form})
+
+
+class Login(LoginView):
+  #ログインページ
+  form_class = LoginForm
+  template_name = 'login.html'
+
+
+class Logout(LoginRequiredMixin, LogoutView):
+  #ログアウトページ
+  template_name = 'login.html'

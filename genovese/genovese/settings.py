@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-#s^5zk&bl^i)^)g*k5o)e7ke8dducimeb8+f^uuj1d5jzolh8v
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -42,6 +42,11 @@ INSTALLED_APPS = [
     'nutrients.apps.NutrientsConfig',
 ]
 
+AUTH_USER_MODEL = "login.User" #カスタムユーザーを認証用ユーザーとして登録
+
+LOGIN_REDIRECT_URL = "login:index"
+LOGOUT_REDIRECT_URL = "login:login"
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -57,8 +62,8 @@ ROOT_URLCONF = 'genovese.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
+        'DIRS': [BASE_DIR / 'templates'],
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',

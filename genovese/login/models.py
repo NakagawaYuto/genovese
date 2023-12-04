@@ -1,47 +1,95 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Permission
-from datetime import date
-# Create your models here.
-class Post(models.Model):
-  title = models.CharField(max_length=255)
-  slug = models.SlugField()
-  intro = models.TextField()
-  body = models.TextField()
-  posted_date = models.DateTimeField(auto_now_add=True)
+from django.contrib.auth.models import (BaseUserManager,
+                                        AbstractBaseUser,
+                                        PermissionsMixin)
+from django.utils.translation import gettext_lazy as _
 
 
-class Comment(models.Model):
-  post = models.ForeignKey(Post, related_name="comments", on_delete=models.CASCADE)
-  name = models.CharField(max_length=255)
-  email = models.EmailField()
-  body = models.TextField()
-  posted_date = models.DateTimeField(auto_now_add=True)
+class UserManager(BaseUserManager):
+    def _create_user(self, email, account_id, password, **extra_fields):
+        email = self.normalize_email(email)
+        user = self.model(email=email, account_id=account_id, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+
+        return user
+
+    def create_user(self, email, account_id, password=None, **extra_fields):
+        extra_fields.setdefault('is_active', True)
+        extra_fields.setdefault('is_staff', False)
+        extra_fields.setdefault('is_superuser', False)
+        return self._create_user(
+            email=email,
+            account_id=account_id,
+            password=password,
+            **extra_fields,
+        )
+
+    def create_superuser(self, email, account_id, password, **extra_fields):
+        extra_fields['is_active'] = True
+        extra_fields['is_staff'] = True
+        extra_fields['is_superuser'] = True
+        return self._create_user(
+            email=email,
+            account_id=account_id,
+            password=password,
+            **extra_fields,
+        )
 
 
-class CustomUser(AbstractUser):
-  #誕生日情報追加
-  birth_date = models.DateField(null=True, blank=True)
-  # 'groups' フィールドを上書きする必要はありませんが、もし 'related_name' を変更するために定義した場合、このようになります。
-  groups = models.ManyToManyField(
-      'auth.Group',
-      related_name='custom_user_groups',  # ここで 'related_name' をユニークなものに変更
-      blank=True,
-      help_text='このユーザーが属するグループ。ユーザーは、所属する各グループに付与されたすべての権限を取得します。',
-      verbose_name='groups'
-  )
+class User(AbstractBaseUser, PermissionsMixin):
 
-  # もし 'user_permissions' フィールドも上書きした場合、同様にユニークな 'related_name' を設定してください。
-  user_permissions = models.ManyToManyField(
-      'auth.Permission',
-      related_name='custom_user_permissions',  # ここでも 'related_name' をユニークなものに
-      blank=True,
-      help_text='このユーザーに特有の権限。',
-      verbose_name='user permissions'
-  )
-  @property
-  def age(self):
-    #生年月日が設定されている場合に、年齢を計算して返す
-    if self.birth_date:
-      today = date.today()
-      return today.year - self.birth_date.year - ((today.month, today.day) < self.birth_date.month, self.birth_date.day)
-    return None
+    account_id = models.CharField(
+        verbose_name=_("account_id"),
+        unique=True,
+        max_length=10
+    )
+    email = models.EmailField(
+        verbose_name=_("email"),
+        unique=True
+    )
+    first_name = models.CharField(
+        verbose_name=_("first_name"),
+        max_length=150,
+        null=True,
+        blank=False
+    )
+    last_name = models.CharField(
+        verbose_name=_("last_name"),
+        max_length=150,
+        null=True,
+        blank=False
+    )
+    birth_date = models.DateField(
+        verbose_name=_("birth_date"),
+        blank=True,
+        null=True
+    )
+    is_superuser = models.BooleanField(
+        verbose_name=_("is_superuer"),
+        default=False
+    )
+    is_staff = models.BooleanField(
+        verbose_name=_('staff status'),
+        default=False,
+    )
+    is_active = models.BooleanField(
+        verbose_name=_('active'),
+        default=True,
+    )
+    created_at = models.DateTimeField(
+        verbose_name=_("created_at"),
+        auto_now_add=True
+    )
+    updated_at = models.DateTimeField(
+        verbose_name=_("updateded_at"),
+        auto_now=True
+    )
+
+    objects = UserManager()
+
+    USERNAME_FIELD = 'account_id'
+    REQUIRED_FIELDS = ['email']
+
+    def __str__(self):
+        return self.account_id

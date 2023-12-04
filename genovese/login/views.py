@@ -1,37 +1,40 @@
-from django.shortcuts import render, redirect
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth.views import(LoginView, LogoutView)
-from login.forms import CommentForm, LoginForm
-from .models import Post
+from django.shortcuts import render
+
+from django.contrib.auth import login, authenticate
+from django.views.generic import TemplateView, CreateView
+from django.contrib.auth.views import LoginView as BaseLoginView, LogoutView as BaseLogoutView
+from django.urls import reverse_lazy
+from .forms import SignUpForm, LoginFrom
 # Create your views here.
+
 def frontpage(request):
-  posts = Post.objects.all()
-  return render(request, "login/frontpage.html", {"posts": posts})
+  return render(request, "login/frontpage.html")
 
 
-def post_detail(request, slug):
-  post = Post.objects.get(slug=slug)
-
-  if request.method == "POST":
-    form = CommentForm(request.POST)
-
-    if form.is_valid():
-      comment = form.save(commit=False)
-      comment.post = post
-      comment.save()
-
-      return redirect("login:post_detail", slug=post.slug)
-  else:
-    form = CommentForm()
-  return render(request, "login/post_detail.html", {"post": post, "form": form})
+class IndexView(TemplateView):
+    """ ホームビュー """
+    template_name = "index.html"
 
 
-class Login(LoginView):
-  #ログインページ
-  form_class = LoginForm
-  template_name = 'login.html'
+class SignupView(CreateView):
+    """ ユーザー登録用ビュー """
+    form_class = SignUpForm # 作成した登録用フォームを設定
+    template_name = "login/signup.html" 
+    success_url = reverse_lazy("login:index") # ユーザー作成後のリダイレクト先ページ
 
+    def form_valid(self, form):
+        # ユーザー作成後にそのままログイン状態にする設定
+        response = super().form_valid(form)
+        account_id = form.cleaned_data.get("account_id")
+        password = form.cleaned_data.get("password1")
+        user = authenticate(account_id=account_id, password=password)
+        login(self.request, user)
+        return response
 
-class Logout(LoginRequiredMixin, LogoutView):
-  #ログアウトページ
-  template_name = 'login.html'
+class LoginView(BaseLoginView):
+    form_class = LoginFrom
+    template_name = "login/login.html"
+
+# LogoutViewを追加
+class LogoutView(BaseLogoutView):
+    success_url = reverse_lazy("login:index")

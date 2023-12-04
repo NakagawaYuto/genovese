@@ -1,16 +1,19 @@
-from django import forms
-from django.contrib.auth.forms import AuthenticationForm
-from .models import Comment
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 
-class CommentForm(forms.ModelForm):
-  class Meta:
-    model = Comment
-    fields = ['name', 'email', 'body']
+from .models import User
 
-class LoginForm(AuthenticationForm):
-  #ログオンフォーム
-  def __init__(self, *args, **kwargs):
-    super().__init__(*args, **kwargs)
-    for field in self.fields.values():
-      field.widget.attrs['class'] = 'form-control'
-      field.widget.attrs['placeholder'] = field.label
+
+class SignUpForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = (
+            "account_id",
+            "email",
+            "first_name",
+            "last_name",
+            "birth_date",
+        )
+
+class LoginFrom(AuthenticationForm):
+    class Meta:
+        model = User

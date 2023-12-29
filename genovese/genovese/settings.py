@@ -43,9 +43,18 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = "login.User" #カスタムユーザーを認証用ユーザーとして登録
-
 LOGIN_REDIRECT_URL = "login:index"
 LOGOUT_REDIRECT_URL = "login:login"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend' # メールを送信する
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+DEFAULT_FROM_EMAIL = 'hoge@hoge.com'
+EMAIL_HOST_USER = 'hoge@hoge.com'
+EMAIL_HOST_PASSWORD = 'password'
+EMAIL_USE_TLS = True
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
